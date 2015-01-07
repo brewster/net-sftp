@@ -49,6 +49,9 @@ module Net; module SFTP
     # The highest protocol version supported by the Net::SFTP library.
     HIGHEST_PROTOCOL_VERSION_SUPPORTED = 6
 
+    # The protocol version most commonly supported
+    SAFE_PROTOCOL_VERSION = 3
+
     # A reference to the Net::SSH session object that powers this SFTP session.
     attr_reader :session
 
@@ -876,7 +879,8 @@ module Net; module SFTP
         channel.on_close(&method(:when_channel_closed))
         channel.on_process(&method(:when_channel_polled))
 
-        send_packet(FXP_INIT, :long, HIGHEST_PROTOCOL_VERSION_SUPPORTED)
+        protocol_version = @protocol.nil? ? SAFE_PROTOCOL_VERSION : @protocol.version
+        send_packet(FXP_INIT, :long, protocol_version)
       end
 
       # Called when the SSH server closes the underlying channel.
